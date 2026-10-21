@@ -10,8 +10,8 @@ const { createClient } = require('@supabase/supabase-js');
 
 // 2. Configurar con tu URL y tu Public Key (anon key)
 //    (Supabase -> botón "Connect" o Project Settings -> API)
-const supabaseUrl = 'https://pnmoiqiivqsrqjnotfda.supabase.co';
-const supabaseKey = 'sb_publishable_3fDuZl0SaLI0qhQ7BIeOhg_7ZuLBxsl';
+const supabaseUrl = 'https://hqmrajopmwutzegkaknv.supabase.co';
+const supabaseKey = 'sb_publishable_4GAxuHPNkU7BE_TbM0p-Bg_AcrQJv5e';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // PRÁCTICA 3 - PARTE 2: JWT
