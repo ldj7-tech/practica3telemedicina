@@ -1,13 +1,10 @@
-// Realiza una petición REST con datos codificados en JSON
+// Realizz una peticion rest con datos codificados en json
 // Incluir en el HTML con <script src="rest.js"></script>
 // uso:
 // rest (metodo, url, [requestData], [callback])
 // rest.metodo(url, [requestData], [callback])
 // Cuando se completa la petición/respuesta se invoca callback con el estado y la respuesta: callback(status, response)
 // Si no se pasa callback la petición es síncrona y retorna un objeto {status, response}
-// ejemplos:
-//  - rest("get", "http://www.miempresa.com/test", function (status, response) { ... });
-//  - rest("post", "http://www.miempresa.com/persona", { nombre: "Luis" }, function (status, response) { ... });
 
 (function () {
 	function debug(...args) {
@@ -15,16 +12,16 @@
 	}
 
 	function rest(method, url, data, callback) {
-		method = method.toUpperCase(); // método en mayúsculas
+		method = method.toUpperCase(); // metodo en maysc
 		if (typeof data === "function") { // no se ha indicado data, pero si callback
 			callback = data;
 			data = null;
 		}
-		var async = typeof callback === "function"; // es una petición asincrona?
+		var async = typeof callback === "function"; // es una peticion asincrona?
 		if (data && typeof data !== "string") data = JSON.stringify(data); // datos en texto formato JSON
 		var xhr = new XMLHttpRequest();
 		xhr.open(method, url, async);
-		//xhr.responseType = 'json'; // el tipo de la respuesta que se espera es JSON
+		//xhr.responseType = 'json'; // el tipo de la respuesta q se espera es JSON
 		xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8"); // el tipo de la petición es JSON
 		debug(">>>", method, url, data);
 		xhr.send(data); // Enviar datos

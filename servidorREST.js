@@ -1,22 +1,18 @@
 var express = require('express'); // cargar el módulo
 var app = express(); // crear la app express
 
-// =========================================================
-// PRÁCTICA 3 - PARTE 3: BASE DE DATOS EN SUPABASE
-// En vez de MySQL (XAMPP) usamos Supabase con su librería
-// =========================================================
-// 1. Importar el cliente de Supabase
+// 1.importar el cliente de Supabase
 const { createClient } = require('@supabase/supabase-js');
 
-// 2. Configurar con tu URL y tu Public Key (anon key)
-//    (Supabase -> botón "Connect" o Project Settings -> API)
+// 2. Configura con mi URL y mi Public Key
+//(Supabase -> botón "Connect" o Project Settings -> API)
 const supabaseUrl = 'https://hqmrajopmwutzegkaknv.supabase.co';
 const supabaseKey = 'sb_publishable_4GAxuHPNkU7BE_TbM0p-Bg_AcrQJv5e';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// PRÁCTICA 3 - PARTE 2: JWT
+//PARTE 2: JWT
 var jwt = require('jwt-simple');
-var clave = 'miSecretoMasOscuro'; // clave para codificar / decodificar el token
+var clave = 'miSecretoMasOscuro'; // clave para codificar/decodificar el token
 
 app.use(express.json()); // json es un formato de intercambio de datos
 
@@ -28,7 +24,7 @@ app.use((req, res, next) => {
 
 
 // =========================================================
-// SERVICIOS PÚBLICOS (no necesitan token)
+// SERVICIOS PÚBLICOS (q no necesitan token)
 // Login y registro tienen que ir ANTES del app.use que comprueba el token
 // =========================================================
 
@@ -50,14 +46,14 @@ app.post("/api/gestores/login", async function(req, res) {
 
     console.log("Login correcto, id del gestor:", data[0].id);
 
-    // el login crea el token
+    // el login me crea el token
     var contenido = {
         usuario: data[0].id,
         expira: Date.now() + 60 * 60 * 1000 // expira en 1 hora (en ms)
     };
     var token = jwt.encode(contenido, clave);
 
-    // devolvemos el token y también el id (la app del gestor lo usa para "Editar datos")
+    // devolvemos el token y tb el id (la app del gestor lo usa para "Editar datos")
     res.status(200).json({ id: data[0].id, token: token });
 });
 
@@ -65,7 +61,7 @@ app.post("/api/gestores/login", async function(req, res) {
 app.post("/api/gestores", async function(req, res) {
     console.log("Datos recibidos para nuevo gestor:", req.body);
 
-    // ¿ya existe ese usuario?
+    //ya existe ese usuario???
     const { data: existentes, error: error1 } = await supabase
         .from('gestores')
         .select('id')
@@ -88,13 +84,10 @@ app.post("/api/gestores", async function(req, res) {
     res.status(201).json("Gestor creado correctamente");
 });
 
+// COMPROBAR EL TOKEN
+// Antes de este use--> los servicios son publicos (no necesitan token)
+// Despues de este use----> TODOS los /api necesitan el token
 
-// =========================================================
-// COMPROBAR EL TOKEN ("el portero")
-// Antes de este use, los servicios son públicos (no necesitan token)
-// Después de este use, TODOS los /api necesitan el token
-// El token llega en la URL:  /api/recursos?token=XXXXXXXX
-// =========================================================
 app.use("/api", function (req, res, next) {
     var token = req.query.token;
     // 1. mirar si hay token
@@ -103,7 +96,7 @@ app.use("/api", function (req, res, next) {
         return;
     }
 
-    // 2. mirar si es auténtico
+    // 2. mirar si es autentico
     try {
         var contenidoToken = jwt.decode(token, clave); // abre el token con la clave
     } catch (error) { // es falso o está modificado
@@ -128,10 +121,7 @@ app.use("/api", function (req, res, next) {
     next();
 });
 
-
-// =========================================================
-// SERVICIOS PROTEGIDOS (necesitan token)
-// =========================================================
+// SERVICIOS PROTEGIDOS (si q necesitan token)
 
 // GET ubicaciones
 app.get("/api/ubicaciones", async function(req, res) {
@@ -159,7 +149,7 @@ app.put("/api/gestores/:id", async function(req, res) {
     console.log("Datos para actualizar", req.body);
     var id = parseInt(req.params.id);
 
-    // ¿existe el gestor?
+    // existe el gestor?
     const { data: gestor, error: error1 } = await supabase
         .from('gestores')
         .select('id')
@@ -167,7 +157,7 @@ app.put("/api/gestores/:id", async function(req, res) {
     if (error1) return res.status(500).json("Error en la base de datos");
     if (gestor.length === 0) return res.status(404).json("Gestor no encontrado");
 
-    // si cambia el usuario, que no lo tenga otro gestor
+    // si cambia el usuario, q no lo tenga otro gestor
     if (req.body.usuario) {
         const { data: otros, error: error2 } = await supabase
             .from('gestores')
@@ -178,7 +168,7 @@ app.put("/api/gestores/:id", async function(req, res) {
         if (otros.length > 0) return res.status(403).json("Ese usuario ya existe");
     }
 
-    // solo cambiamos los campos que vienen rellenos
+    // solo cambiamos los campos qeu vienen rellenos
     var cambios = {};
     if (req.body.nombre)    cambios.nombre = req.body.nombre;
     if (req.body.apellidos) cambios.apellidos = req.body.apellidos;
@@ -229,8 +219,8 @@ app.get("/api/sanitarios/:id", async function(req, res) {
 app.get("/api/recursos", async function(req, res) {
     var consulta = supabase.from('recursos').select('*');
 
-    // filtro por categoría: la categoría está en la tabla modelos,
-    // así que primero busco los modelos de esa categoría
+    // filtro por categoria: la categoria esta en la tabla modelos,
+    // asiq primero busco los modelos de esa categoría
     if (req.query.categoria) {
         const { data: modelos, error: errorModelos } = await supabase
             .from('modelos')
@@ -374,10 +364,10 @@ app.get("/api/resenyas", async function(req, res) {
     res.status(200).json(data);
 });
 
-// Archivos de la web del gestor (index.html, main.js)
+// archivos de la web del gestor 
 app.use(express.static(__dirname + "/Cliente"));
 
-// PRÁCTICA 3 - PARTE 3: Render elige el puerto; en mi ordenador sigue siendo 3000
+//PARTE 3: render elige el puerto.  en mi ordenador sigue siendo 3000
 var PUERTO = process.env.PORT || 3000;
 app.listen(PUERTO, function(){
     console.log("Servidor arrancado en puerto " + PUERTO);
